@@ -23,7 +23,7 @@
 | Resource | URL |
 |----------|-----|
 | Hackathon page | https://dorahacks.io/hackathon/stablehacks/detail |
-| GitHub repo | TBD |
+| GitHub repo | https://github.com/Neelkukreti/yieldpilot |
 | Vercel preview | TBD |
 | API deployment | TBD |
 
@@ -251,7 +251,7 @@ Transparent weighted formula — all weights visible in UI:
 
 ```
 # Database
-DATABASE_URL="postgresql://yieldpilot:yieldpilot@localhost:5432/yieldpilot"
+DATABASE_URL="postgresql://neel@localhost:5432/yieldpilot"  # Adjust user for your system
 
 # AI
 ANTHROPIC_API_KEY="sk-ant-..."
@@ -277,27 +277,27 @@ Everything in this phase MUST work for the demo.
 
 | # | Task | Owner | Status | Notes |
 |---|------|-------|--------|-------|
-| 1.1 | Monorepo scaffold | -- | DONE | turbo + pnpm + dirs |
-| 1.2 | packages/shared — types | -- | TODO | All TypeScript interfaces |
-| 1.3 | packages/shared — policy engine | -- | TODO | 5 rules as pure functions |
-| 1.4 | packages/shared — scoring engine | -- | TODO | Weighted composite |
-| 1.5 | packages/database — Prisma schema | -- | TODO | 4 models |
-| 1.6 | apps/api — Express + tRPC setup | -- | TODO | Server + router shell |
-| 1.7 | apps/api — mock adapters | -- | TODO | Kamino + Marinade mocks |
-| 1.8 | apps/api — strategy fetcher | -- | TODO | Aggregate adapters |
-| 1.9 | apps/api — recommendation service | -- | TODO | Full pipeline |
-| 1.10 | apps/api — AI explainer | -- | TODO | Claude SDK |
+| 1.1 | Monorepo scaffold | Claude | DONE | turbo + pnpm + dirs |
+| 1.2 | packages/shared — types | Claude | DONE | All TypeScript interfaces |
+| 1.3 | packages/shared — policy engine | Claude | DONE | 5 rules as pure functions |
+| 1.4 | packages/shared — scoring engine | Claude | DONE | Weighted composite |
+| 1.5 | packages/database — Prisma schema | Claude | DONE | 4 models, seed data |
+| 1.6 | apps/api — Express + tRPC setup | Claude | DONE | Server + 4 routers |
+| 1.7 | apps/api — mock adapters | Claude | DONE | Kamino (4) + Marinade (2) mocks |
+| 1.8 | apps/api — strategy fetcher | Claude | DONE | Aggregate adapters |
+| 1.9 | apps/api — recommendation service | Claude | DONE | Full pipeline |
+| 1.10 | apps/api — AI explainer | Claude | DONE | Claude SDK with fallback |
 | 1.11 | apps/api — execution service | -- | TODO | Solana TX builder |
-| 1.12 | apps/api — all tRPC routers | -- | TODO | policy, strategy, rec, exec, audit |
-| 1.13 | apps/web — Next.js + shadcn setup | -- | TODO | Tailwind 4, App Router |
-| 1.14 | apps/web — wallet connect | -- | TODO | Phantom, balance display |
-| 1.15 | apps/web — dashboard shell | -- | TODO | Sidebar layout |
-| 1.16 | apps/web — portfolio overview | -- | TODO | KPIs, donut chart |
-| 1.17 | apps/web — policy form | -- | TODO | All 5 rules + presets |
-| 1.18 | apps/web — strategies page | -- | TODO | Table with badges |
-| 1.19 | apps/web — recommendation page | -- | TODO | Allocation preview + AI explanation |
+| 1.12 | apps/api — all tRPC routers | Claude | DONE | policy, strategy, rec, audit |
+| 1.13 | apps/web — Next.js + Tailwind setup | Claude | DONE | Next.js 16, Tailwind 4, App Router |
+| 1.14 | apps/web — wallet connect | Claude | DONE | Phantom adapter + connect button |
+| 1.15 | apps/web — dashboard shell | Claude | DONE | Sidebar layout + nav |
+| 1.16 | apps/web — portfolio overview | Claude | DONE | KPIs + getting started |
+| 1.17 | apps/web — policy form | Claude | DONE | All 5 rules + 3 presets + sliders |
+| 1.18 | apps/web — strategies page | Claude | DONE | Table with venue/risk badges + score bar |
+| 1.19 | apps/web — recommendation page | Claude | DONE | Allocation preview + AI explanation |
 | 1.20 | apps/web — approval modal + execute | -- | TODO | TX preview + sign |
-| 1.21 | apps/web — audit log page | -- | TODO | Table with filters |
+| 1.21 | apps/web — audit log page | Claude | DONE | Table with action labels + timestamps |
 | 1.22 | Unit tests — policy engine | -- | TODO | 8-10 test cases |
 | 1.23 | Unit tests — scoring engine | -- | TODO | Edge cases |
 
@@ -327,7 +327,15 @@ Everything in this phase MUST work for the demo.
 
 1. **Read this entire PLAN.md first**
 2. Check the task table above — find the next TODO item
-3. Run `pnpm install && pnpm dev` to verify current state works
+3. Setup:
+   ```bash
+   pnpm install
+   # Copy .env to packages/database/.env and apps/api/.env
+   # Ensure PostgreSQL is running (brew services start postgresql@16)
+   pnpm db:push    # Push schema
+   pnpm db:seed    # Seed mock strategies
+   pnpm dev        # Start both web (3000) and api (4000)
+   ```
 4. Work on your task
 5. **Update this file** when done:
    - Mark your task as DONE in the table
@@ -361,6 +369,10 @@ Everything in this phase MUST work for the demo.
 | Mar 10 | No Solana projects on machine | Starting from scratch with @solana/web3.js |
 | Mar 10 | Kamino SDK may be hard to integrate | Mock adapter first, real SDK in week 2 |
 | Mar 10 | tRPC vs REST | Chose tRPC for end-to-end type safety |
+| Mar 10 | Prisma deep type instantiation with tRPC | Serialized router outputs to plain objects to avoid TS infinite recursion |
+| Mar 10 | Policy presets use decimals (0.4) not % (40) | Frontend converts to/from percentages in UI |
+| Mar 10 | Docker not installed | Using Homebrew PostgreSQL (brew services start postgresql@16) |
+| Mar 10 | .env needs to be in packages/database/ and apps/api/ | Prisma reads from CWD; copy root .env to both dirs |
 | | | |
 
 ---

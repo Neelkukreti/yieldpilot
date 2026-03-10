@@ -1,0 +1,25 @@
+{
+  "name": "yieldpilot",
+  "private": true,
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "lint": "turbo lint",
+    "test": "turbo test",
+    "typecheck": "turbo typecheck",
+    "db:generate": "turbo db:generate",
+    "db:push": "pnpm --filter @yieldpilot/database db:push",
+    "db:seed": "pnpm --filter @yieldpilot/database db:seed",
+    "db:studio": "pnpm --filter @yieldpilot/database db:studio",
+    "clean": "turbo clean && rm -rf node_modules"
+  },
+  "devDependencies": {
+    "prettier": "^3.4.2",
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.3"
+  },
+  "packageManager": "pnpm@10.28.1",
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

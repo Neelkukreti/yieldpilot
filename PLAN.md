@@ -323,6 +323,34 @@ Everything in this phase MUST work for the demo.
 
 ## Handover Protocol
 
+### Current Status (Mar 10, 2026)
+
+**19/23 Phase 1 tasks DONE.** Full-stack app runs locally.
+
+#### Verified Working:
+- `pnpm dev` starts API (:4000) + Web (:3000) via Turborepo
+- API health check: `curl http://localhost:4000/health` → OK
+- Strategy list: 6 mock strategies returned with scores (Kamino 4 + Marinade 2)
+- Next.js frontend builds clean (`next build` passes, all 5 pages render)
+- PostgreSQL: schema pushed, 6 strategies seeded
+- Full tRPC type chain: API router types flow to frontend
+- Policy form with 3 presets (conservative/balanced/aggressive) + sliders
+- Strategies table with APY, TVL, risk tier, score bars
+- Recommendation page with allocation preview + AI explanation display
+- Audit log page with action labels + timestamps
+
+#### Not Yet Built:
+- **1.11** Execution service — Solana TX builder (no `transaction-builder.ts` yet)
+- **1.20** Approval modal — TX preview + wallet sign flow
+- **1.22** Policy engine unit tests
+- **1.23** Scoring engine unit tests
+
+#### Needs Manual Testing (requires browser + Phantom):
+- Wallet connect button (Phantom adapter is wired, untested in browser)
+- Policy create mutation (needs wallet connected for walletAddress)
+- Recommendation generate (needs active policy + optional ANTHROPIC_API_KEY)
+- AI explainer has fallback if ANTHROPIC_API_KEY is empty
+
 ### When picking up this project:
 
 1. **Read this entire PLAN.md first**
@@ -330,14 +358,19 @@ Everything in this phase MUST work for the demo.
 3. Setup:
    ```bash
    pnpm install
-   # Copy .env to packages/database/.env and apps/api/.env
-   # Ensure PostgreSQL is running (brew services start postgresql@16)
-   pnpm db:push    # Push schema
-   pnpm db:seed    # Seed mock strategies
-   pnpm dev        # Start both web (3000) and api (4000)
+   # Ensure PostgreSQL is running:
+   brew services start postgresql@16
+   # Create .env in root (see Environment Variables section), then:
+   cp .env packages/database/.env
+   cp .env apps/api/.env
+   pnpm db:push    # Push schema to PostgreSQL
+   pnpm db:seed    # Seed 6 mock strategies
+   pnpm dev        # Start both web (:3000) and api (:4000)
    ```
-4. Work on your task
-5. **Update this file** when done:
+4. Verify: `curl http://localhost:4000/health` should return `{"service":"YieldPilot API","status":"running"}`
+5. Open http://localhost:3000 in browser
+6. Work on your task
+7. **Update this file** when done:
    - Mark your task as DONE in the table
    - Add your name/agent-id to the Owner column
    - If you changed architecture, update the relevant section
@@ -346,9 +379,17 @@ Everything in this phase MUST work for the demo.
 ### When handing off:
 
 1. Make sure `pnpm dev` still works
-2. Update all task statuses in this file
-3. Document any blockers in Known Issues
-4. Commit with a clear message describing what you did
+2. Make sure `next build` in apps/web still passes (catches type errors)
+3. Update all task statuses in this file
+4. Document any blockers in Known Issues
+5. Commit with a clear message describing what you did
+
+### Priority for next dev:
+
+1. **Unit tests (1.22, 1.23)** — quick win, proves policy engine correctness to judges
+2. **Execution service (1.11)** — Solana TX builder for devnet
+3. **Approval modal (1.20)** — TX preview → wallet sign → execute
+4. Then Phase 2 items (AI copilot chat, real Kamino adapter)
 
 ### Coding conventions:
 
@@ -359,6 +400,7 @@ Everything in this phase MUST work for the demo.
 - All policy logic in `packages/shared` — never in frontend or API directly
 - Mock adapters must always work — real adapters are bonus
 - Every state change creates an audit entry
+- Prisma router outputs must be serialized to plain objects (avoid deep type instantiation errors with tRPC)
 
 ---
 

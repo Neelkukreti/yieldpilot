@@ -1,0 +1,82 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Policy {
+  id                String   @id @default(cuid())
+  name              String
+  walletAddress     String
+  maxExposurePct    Float    @default(0.40)
+  minLiquidityUsd   Float    @default(1000000)
+  minApyPct         Float    @default(3.0)
+  reserveRatioPct   Float    @default(0.10)
+  whitelistedVenues String[] @default([])
+  allowedAssets     String[] @default(["USDC", "USDT"])
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  recommendations Recommendation[]
+  auditEntries    AuditEntry[]
+
+  @@index([walletAddress])
+}
+
+model Strategy {
+  id           String   @id @default(cuid())
+  venue        String
+  vaultName    String
+  vaultAddress String
+  tokenMint    String
+  tokenSymbol  String
+  strategyType String   @default("lending")
+  apyPct       Float
+  netApyPct    Float
+  tvlUsd       Float
+  riskTier     String   @default("low")
+  metadata     Json?
+  fetchedAt    DateTime @default(now())
+
+  @@index([venue])
+  @@index([tokenSymbol])
+}
+
+model Recommendation {
+  id             String   @id @default(cuid())
+  policyId       String
+  policy         Policy   @relation(fields: [policyId], references: [id])
+  walletAddress  String
+  totalAmountUsd Float
+  allocations    Json
+  aiExplanation  String   @db.Text
+  scoringDetails Json
+  policySnapshot Json
+  status         String   @default("pending")
+  txSignatures   String[] @default([])
+  createdAt      DateTime @default(now())
+  executedAt     DateTime?
+
+  auditEntries AuditEntry[]
+
+  @@index([walletAddress, createdAt])
+}
+
+model AuditEntry {
+  id               String   @id @default(cuid())
+  walletAddress    String
+  action           String
+  policyId         String?
+  policy           Policy?         @relation(fields: [policyId], references: [id])
+  recommendationId String?
+  recommendation   Recommendation? @relation(fields: [recommendationId], references: [id])
+  details          Json     @default("{}")
+  createdAt        DateTime @default(now())
+
+  @@index([walletAddress, createdAt])
+  @@index([action])
+}
